@@ -6,7 +6,7 @@ use vars qw($VERSION);
 use AI::Fuzzy::Set;
 use AI::Fuzzy::Label;
 
-$VERSION = '0.01';
+$VERSION = '0.02';
 
 1;
 __END__
@@ -36,6 +36,22 @@ AI::Fuzzy - Perl extension for Fuzzy Logic
       print "$x years old => " . $f->label($x) . "\n";
   }
 
+  $a = new AI::Fuzzy::Set( x1 => .3, x2 => .5, x3 => .8, x4 => 0, x5 => 1);
+  $b = new AI::Fuzzy::Set( x5 => .3, x6 => .5, x7 => .8, x8 => 0, x9 => 1);
+  print "a is: " . $a->as_string . "\n"; 
+  print "b is: " . $b->as_string . "\n"; 
+  
+  print "a is equal to b" if ($a->equal($b));
+  
+  $c = $a->complement();
+  print "complement of a is: " . $c->as_string . "\n"; 
+  
+  $c = $a->union($b);
+  print "a union b is: " . $c->as_string . "\n"; 
+  
+  $c = $a->intersection($b);
+  print "a intersection b is: " . $c->as_string . "\n"; 
+
 __END__
 
 =head1 DESCRIPTION
@@ -63,13 +79,29 @@ AI::Fuzzy:Set has these methods:
     $fs = B<new> AI::Fuzzy::Set;
 
     # here, "Bob" is unquestionably tall.. the others less so.
-    $fs_tall_people = B<new> AI::Fuzzy::Set( Lester=>34, Bob=>100, Max=>86 );
+    $fs_tall_people = B<new> AI::Fuzzy::Set( Lester=>.34, Bob=>1.00, Max=>.86 );
    
-    # $x will be 86
+    # $x will be .86
     $x = B<membership> $fs_tall_people, "Max";
 
     # get list of members, sorted from least membership to greatest:
     @shortest_first = B<members> $fs_tall_people;
+
+    $fs = B<new> AI::Fuzzy::Set( x1 => .3, x2 => .5, x3 => .8, x4 => 0, x5 => 1);
+
+    B<complement>, B<union>, B<intersection>
+    Thesie are the fuzzy set version of the typical functions.
+   
+    B<equal>
+    Returns true if the sets have the same elements and those elements
+    are all equal.
+
+   B<as_string>
+   Prints the set as tuples:
+	$b = new AI::Fuzzy::Set( x5 => .3, x6 => .5, x7 => .8, x8 => 0, x9 => 1);
+	print "b is: " . $b->as_string . "\n"; 
+    prints:
+	b is: x8/0, x5/0.3, x6/0.5, x7/0.8, x9/1
 
 =head2 Fuzzy Labels
 
@@ -117,7 +149,7 @@ $l = $fl->label ($value);
 @l = $fl->label($value);
     # returns a list of labels and their applicability values
 
-@l = new AI::Fuzzy::Set( $fl->label($value) );
+$s = new AI::Fuzzy::Set( $fl->label($value) );
     # same thing, but now it's an object
 
 @range = $fl->range();
@@ -127,10 +159,19 @@ $l = $fl->label ($value);
 
 =head1 AUTHOR
 
-Michal Wallace  (sabren@manifestation.com)
+Tom Scanlan <tscanlan@openreach.com>,
+current maintainer 
+
+Michal Wallace  (sabren@manifestation.com),
+original author
+
 
 =head1 SEE ALSO
 
 Move along, nothing to "see also" here...
+
+=head1 BUGS
+
+Please send any bugs to Tom Scanlan <tscanlan@openreach.com>
 
 =cut

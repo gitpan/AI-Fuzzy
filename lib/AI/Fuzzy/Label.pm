@@ -34,8 +34,9 @@ sub applicability {
     my ($self, $value, $label) = @_;
     my $membership = 0;
 
-    $label = $self->{labels}->{$label};
-
+    if ( exists $self->{labels}->{$label} ) {
+    	$label = $self->{labels}->{$label};
+    } else { return 0; }
     # m = slope of the line.. (change in y/change in x) 
     #     change in y is 1 as membership increases, -1 as it decreases
 
