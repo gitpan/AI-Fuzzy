@@ -69,6 +69,14 @@ sub union {
 
     # for all keys in us and them
     foreach my $key (keys (%us), keys (%them)) {
+	if (not exists $us{$key} and exists $them{$key}) {
+	    $new{$key} = $them{$key};
+	    next;
+	}
+	if (not exists $them{$key} and exists $us{$key}) {
+	    $new{$key} = $us{$key};
+	    next;
+	}
 	if ($us{$key} >= $them{$key}) {
 	    $new{$key} = $us{$key};
 	} else {
@@ -90,6 +98,10 @@ sub intersection {
 
     # for all keys in us and them
     foreach my $key (keys (%us), keys (%them)) {
+	if (not exists $us{$key} or not exists $them{$key}) {
+	    $new{$key} = 0;
+	    next;
+	}
 	if ($us{$key} <= $them{$key}) {
 	    $new{$key} = $us{$key};
 	} else {
@@ -105,10 +117,8 @@ sub complement {
     # requires that the set contain values from 0 to 1
     my $self = shift;
 
-    my (%us, %new);
-    %us = %{$self->{members}} if (exists $self->{members});
+    my (%new);
 
-    # for all keys in us and them
     foreach my $member ($self->members) {
 	my $comp = 1 - $self->membership($member); 
 	return undef if ($comp < 0 || $comp >1);
@@ -118,6 +128,64 @@ sub complement {
 
     return new AI::Fuzzy::Set(%new);
 }
+
+sub support {
+    # returns the support set.
+    # defined as the set of all elements in our set with a non-zero membership.
+    my $self = shift;
+
+    my (%support);
+    foreach my $member ($self->members) {
+	$support{$member}++ if ($self->membership($member) != 0);
+    }
+
+    return new AI::Fuzzy::Set(%support);
+}
+
+sub core { 
+    # returns the core set.
+    # defined as the set of all elements in our set with full membership
+    my $self = shift;
+
+    my (%core);
+    foreach my $member ($self->members) {
+	$core{$member}++ if ($self->membership($member) == 1);
+    }
+
+    return new AI::Fuzzy::Set(%core);
+}
+
+sub height { 
+    # returns the height of the set
+    # defined as the maximal membership value in our set
+    my $self = shift;
+
+    my ($max) = 0;
+    foreach my $member ($self->members) {
+	$max = $self->membership($member) if ($self->membership($member) > $max);
+    }
+
+    return $max;
+}
+
+sub is_normal {
+    # Logical return
+    # normal is defined as a set with a height of 1
+    my $self = shift;
+
+    return 1 if ($self->height == 1);
+    return 0;
+}
+
+sub is_subnormal {
+    # Logical return
+    # normal is defined as a set with a height less than 1
+    my $self = shift;
+
+    return 1 if ($self->height < 1);
+    return 0;
+}
+
 sub as_string {
     my $self = shift;
 
